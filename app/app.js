@@ -20,7 +20,7 @@ const app = express()
 // Stripe
 
 const stripe = new Stripe(process.env.STRIPE_KEY)
-const endpointSecret = 'whsec_b39c9fd40a75b4d838c1f44c9ddc514f5d085f89b0bd50fc15c7a65ad665ea79';
+const endpointSecret = 'secret_key';
 
 app.post('/webhook', express.raw({type: 'application/json'}), async(request, response) => {
   let event;
