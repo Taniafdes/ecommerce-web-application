@@ -4,10 +4,10 @@ import { isLoggedIn } from '../middlewares/isLoggedIn.js';
 import isAdmin from '../middlewares/isAdmin.js';
 const brandRoutes = Router();
 
-brandRoutes.post('/', isLoggedIn, isAdmin, createBrandCtrl)
-brandRoutes.get('/', getAllBrandCtrl)
-brandRoutes.get('/:id', getSingleBrandCtrl)
-brandRoutes.put('/:id', isAdmin, updateBrandCtrl)
-brandRoutes.delete('/:id', isAdmin, deleteBrandCtrl)
+brandRoutes.post('/brands', isLoggedIn, isAdmin, createBrandCtrl)
+brandRoutes.get('/brands', getAllBrandCtrl)
+brandRoutes.get('/brands/:id', getSingleBrandCtrl)
+brandRoutes.put('/brands/update/:id', isAdmin, updateBrandCtrl)
+brandRoutes.delete('/brands/:id', isAdmin, deleteBrandCtrl)
 
 export default brandRoutes

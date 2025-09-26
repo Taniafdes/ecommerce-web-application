@@ -5,10 +5,10 @@ import categoryFileUpload from '../config/categoryUpload.js';
 
 const categoriesRoutes= Router();
 
-categoriesRoutes.post("/",isLoggedIn, categoryFileUpload.single("file"), createCategoryCtrl)
-categoriesRoutes.get("/", getAllCategoriesCtrl)
-categoriesRoutes.get("/:id", getSingleCategoriesCtrl)
-categoriesRoutes.put("/:id", updateCategoryCtrl)
-categoriesRoutes.delete("/:id", deleteCategoryCtrl)
+categoriesRoutes.post("/categories",isLoggedIn, categoryFileUpload.single("file"), createCategoryCtrl)
+categoriesRoutes.get("/categories", getAllCategoriesCtrl)
+categoriesRoutes.get("/categories/:id", getSingleCategoriesCtrl)
+categoriesRoutes.put("/categories/update/:id", updateCategoryCtrl)
+categoriesRoutes.delete("/categories/:id", deleteCategoryCtrl)
 
 export default categoriesRoutes;

@@ -5,10 +5,10 @@ import { createOrderCtrl, getAllOrdersCtrl,getOrderStatsCtrl, getSingleOrderCtrl
 const OrderRouter = Router();
 
 //  create an order
-OrderRouter.post('/', isLoggedIn ,createOrderCtrl)
-OrderRouter.get('/', isLoggedIn ,getAllOrdersCtrl)
-OrderRouter.get('/sales/stats', isLoggedIn ,getOrderStatsCtrl)
-OrderRouter.get('/:id', isLoggedIn ,getSingleOrderCtrl)
-OrderRouter.put('/update/:id', isLoggedIn ,updateOrderCtrl)
+OrderRouter.post('/orders', isLoggedIn ,createOrderCtrl)
+OrderRouter.get('/orders', isLoggedIn ,getAllOrdersCtrl)
+OrderRouter.get('/orders/sales/stats', isLoggedIn ,getOrderStatsCtrl)
+OrderRouter.get('/orders/:id', isLoggedIn ,getSingleOrderCtrl)
+OrderRouter.put('/orders/update/:id', isLoggedIn ,updateOrderCtrl)
 
 export default OrderRouter;

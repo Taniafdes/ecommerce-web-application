@@ -5,11 +5,11 @@ import upload from '../config/fileUpload.js';
 import isAdmin from '../middlewares/isAdmin.js';
 
 const productRoutes = Router();
-productRoutes.post("/", isLoggedIn, isAdmin, upload.single("file"), newProductCtrl)
+productRoutes.post("/products", isLoggedIn, isAdmin, upload.single("file"), newProductCtrl)
 
-
-productRoutes.get("/", getAllProductsCtrl)
-productRoutes.get("/:id", getSingleProductCtrl)
-productRoutes.put("/:id", isLoggedIn, isAdmin, updateProductCtrl)
-productRoutes.delete("/:id/delete", isLoggedIn, isAdmin, deleteProductCtrl)
+productRoutes.get("/products", getAllProductsCtrl)
+productRoutes.get("/products/:id", getSingleProductCtrl) // Use /products/:id
+productRoutes.put("/products/update/:id", isLoggedIn, isAdmin, updateProductCtrl)
+productRoutes.delete("/products/delete/:id", isLoggedIn, isAdmin, deleteProductCtrl)
+// productRoutes.delete("/products/:id", isLoggedIn, isAdmin, deleteProductCtrl) // Cleaner delete URL
 export default productRoutes

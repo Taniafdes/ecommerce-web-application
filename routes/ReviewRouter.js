@@ -4,6 +4,6 @@ import { createReviewCtrl } from "../controllers/ReviewCtrl.js";
 
 const reviewRoutes = Router();
 
-reviewRoutes.post("/:productID", isLoggedIn, createReviewCtrl)
+reviewRoutes.post("/reviews/:productID", isLoggedIn, createReviewCtrl)
 
 export default reviewRoutes

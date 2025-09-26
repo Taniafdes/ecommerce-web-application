@@ -75,15 +75,23 @@ app.post('/webhook', express.raw({type: 'application/json'}), async(request, res
 app.use(express.json());
 
 // routes
-app.use('/api/v1/users', userRoutes)
-app.use('/api/v1/products', productRoutes)
-app.use('/api/v1/categories', categoriesRoutes)
-app.use('/api/v1/brands', brandRoutes)
-app.use('/api/v1/colors', colorRoutes)
-app.use('/api/v1/reviews', reviewRoutes)
-app.use('/api/v1/orders', OrderRouter)
-app.use('/api/v1/coupons', couponRoutes)
+// app.use('/api/v1/users', userRoutes)
+// app.use('/api/v1/products', productRoutes)
+// app.use('/api/v1/categories', categoriesRoutes)
+// app.use('/api/v1/brands', brandRoutes)
+// app.use('/api/v1/colors', colorRoutes)
+// app.use('/api/v1/reviews', reviewRoutes)
+// app.use('/api/v1/orders', OrderRouter)
+// app.use('/api/v1/coupons', couponRoutes)
 
+app.use('/api/v1', userRoutes)
+app.use('/api/v1', productRoutes)
+app.use('/api/v1', categoriesRoutes)
+app.use('/api/v1', brandRoutes)
+app.use('/api/v1', colorRoutes)
+app.use('/api/v1', reviewRoutes)
+app.use('/api/v1', OrderRouter)
+app.use('/api/v1', couponRoutes)
 
 // err middleware
 app.use(notFound)

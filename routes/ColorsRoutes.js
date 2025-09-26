@@ -6,10 +6,10 @@ import isAdmin from "../middlewares/isAdmin.js";
 
 const colorRoutes = Router();
 
-colorRoutes.post('/', isLoggedIn, isAdmin, createColorsCtrl)
-colorRoutes.get('/', getAllColorsCtrl)
-colorRoutes.get('/:id', getSingleColorsCtrl)
-colorRoutes.put('/:id', isAdmin, updateColorsCtrl)
-colorRoutes.delete('/:id', isAdmin, deleteColorsCtrl)
+colorRoutes.post('/colors', isLoggedIn, isAdmin, createColorsCtrl)
+colorRoutes.get('/colors', getAllColorsCtrl)
+colorRoutes.get('/colors/:id', getSingleColorsCtrl)
+colorRoutes.put('/colors/update/:id', isAdmin, updateColorsCtrl)
+colorRoutes.delete('/colors/:id', isAdmin, deleteColorsCtrl)
 
 export default colorRoutes
