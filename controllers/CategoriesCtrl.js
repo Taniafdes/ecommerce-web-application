@@ -10,6 +10,7 @@ export const createCategoryCtrl= asyncHandler(async(req, res)=> {
     const createCat = await Categories.create({
         name: name.toLowerCase(),
         user: req.userAuthId,
+        image: req.file.path,
     })
     res.json({
         status: 'success',

@@ -10,19 +10,32 @@ import Brands from '../model/Brands.js';
 export const newProductCtrl = asyncHandler( async (req, res) => {
     
 
+    try {
     console.log("hi");
-  console.log("👉 File uploaded:", req.file);
-  console.log("👉 Body received:", req.body);
+    console.log("👉 File uploaded:", req.file); 
+    console.log("👉 Body received:", req.body); 
 
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Example: save product info in DB (mock)
+    const product = {
+      image: req.file.path,
+    };
+
+    // Simulate DB save
+    console.log('Saved product:', product);
+
+    return res.status(201).json({
+      message: 'Product uploaded successfully',
+      product
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error', error });
   }
-
-  return res.json({
-    message: "Product received successfully",
-    file: req.file,
-    body: req.body,
-  });
 
 
 //     const { name, description, category, sizes, colors, price, totalQlty, brand } = req.body;

@@ -13,7 +13,6 @@ const categoriesSchema = new Schema({
     },
     image: {
             type: String,
-            default: "https://via.placeholder.com/150",
             required: true
         },
     products: [{

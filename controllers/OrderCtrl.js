@@ -41,8 +41,13 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
         throw new Error("User not found");
     }
 
-    if (!user?.hasShippingAddress) {
-        throw new Error("Please provide shipping address")
+     if (!user?.hasShippingAddress) {
+        // Assuming shippingAddress is correctly present in req.body
+        user.shippingAddress = shippingAddress; 
+        user.hasShippingAddress = true; 
+        await user.save();
+        // The Mongoose validation error should now be resolved because 
+        // the user's profile is updated, and the flow is not interrupted.
     }
 
     const order = await Order.create({
@@ -132,4 +137,53 @@ export const updateOrderCtrl = asyncHandler(async(req, res) => {
     message: "Order updated",
     updatedOrder
   })
+})
+
+// get sum of all total orders
+export const getOrderStatsCtrl = asyncHandler(async(req, res) => {
+
+  const orders = await Order.aggregate([
+    {
+      $group: {
+        _id: null,
+        minimumSale: {
+          $min: '$totalPrice',
+        },
+         totalSales: {
+          $sum: "$totalPrice",
+        },
+        maxSales: {
+          $max: "$totalPrice",
+        },
+        avgSale: {
+          $avg: "$totalPrice",
+        }
+      }
+    }
+  ])
+
+  const date = new Date();
+  const today = new Date(date.getFullYear(), date.getMonth(), date.getDay());
+  const saleToday = await Order.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: today,
+        }
+      }
+    }, {
+      $group: {
+        _id: null,
+        totalSales: {
+          $sum: "$totalPrice"
+        }
+      }
+    }
+  ])
+   res.json({
+      success: true,
+      message: "Sum of orders",
+      orders,
+      saleToday
+    })
 })

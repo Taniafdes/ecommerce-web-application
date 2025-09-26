@@ -24,6 +24,6 @@ public_id: (req, file) => file.originalname.split('.')[0], // original filename
 }
 });
 // Init Multer with Cloudinary storage
-const upload = multer({ storage });
+const categoryFileUpload = multer({ storage });
 
-export default upload;
+export default categoryFileUpload;
