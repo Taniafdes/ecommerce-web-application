@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import Product from "../model/Product.js";
 import Reviews from "../model/Reviews.js";
 
-export const CreateReviewCtrl = asyncHandler(async (req, res) => {
+export const createReviewCtrl = asyncHandler(async (req, res) => {
     const { message, rating } = req.body;
     const { productID } = req.params;
 
