@@ -76,7 +76,7 @@ app.use(express.json());
 
 // routes
 app.use('/api/v1/users', userRoutes)
-app.use('/api/v1', productRoutes)
+app.use('/api/v1/products', productRoutes)
 app.use('/api/v1/categories', categoriesRoutes)
 app.use('/api/v1/brands', brandRoutes)
 app.use('/api/v1/colors', colorRoutes)
