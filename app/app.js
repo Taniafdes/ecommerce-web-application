@@ -18,9 +18,6 @@ const app = express()
 
 // Stripe
 const stripe = new Stripe(process.env.STRIPE_KEY)
-// NOTE: For security, use environment variables for secrets like endpointSecret.
-// This hardcoded value 'whsec_b39c9fd40a75b4d838c1f44c9ddc514f5d085f89b0bd50fc15c7a65ad665ea79' 
-// should ideally be replaced with process.env.STRIPE_WEBHOOK_SECRET
 const endpointSecret = 'whsec_b39c9fd40a75b4d838c1f44c9ddc514f5d085f89b0bd50fc15c7a65ad665ea79';
 
 app.post('/webhook', express.raw({type: 'application/json'}), async(request, response) => {
@@ -66,28 +63,26 @@ app.post('/webhook', express.raw({type: 'application/json'}), async(request, res
       console.log(order)
     } 
     else {
-      // If the event is received but not the one we want, return a 200 OK
-      return response.json({received: true});
+      return
     }
-  
-    response.json({received: true});
-  }
+
+  response.json({received: true});
+}
 }
 )
 
 // pass incoming data
 app.use(express.json());
 
-// 🚩 FIX: CONSOLIDATE ALL ROUTE MOUNTING TO THE BASE PREFIX /api/v1 
-// This ensures that each router file must specify its resource path (e.g., '/users', '/products')
-app.use('/api/v1', userRoutes)
-app.use('/api/v1', productRoutes) // Cleaned up from /api/v1/
-app.use('/api/v1', categoriesRoutes)
-app.use('/api/v1', brandRoutes)
-app.use('/api/v1', colorRoutes)
-app.use('/api/v1', reviewRoutes)
-app.use('/api/v1', OrderRouter)
-app.use('/api/v1', couponRoutes)
+// routes
+app.use('/api/v1/users', userRoutes)
+app.use('/api/v1', productRoutes)
+app.use('/api/v1/categories', categoriesRoutes)
+app.use('/api/v1/brands', brandRoutes)
+app.use('/api/v1/colors', colorRoutes)
+app.use('/api/v1/reviews', reviewRoutes)
+app.use('/api/v1/orders', OrderRouter)
+app.use('/api/v1/coupons', couponRoutes)
 
 
 // err middleware
