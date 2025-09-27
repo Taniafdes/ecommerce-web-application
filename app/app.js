@@ -1,89 +1,105 @@
 import express from 'express';
-import dbConnect from '../config/dbConnect.js';
-import userRoutes from '../routes/UserRoutes.js';
-import { globalErrHandler, notFound } from '../middlewares/globalErrHandler.js';
-import productRoutes from '../routes/ProductRoutes.js';
-import categoriesRoutes from '../routes/CategoriesRoutes.js';
-import brandRoutes from '../routes/BrandsRoutes.js';
+import dbConnect from './config/dbConnect.js';
+import { globalErrHandler, notFound } from './middlewares/globalErrHandler.js';
+// Route Imports
+import userRoutes from './routes/UserRoutes.js';
+import productRoutes from './routes/ProductRoutes.js';
+import categoriesRoutes from './routes/CategoriesRoutes.js';
+import brandRoutes from './routes/BrandsRoutes.js';
 import colorRoutes from '../routes/ColorsRoutes.js';
 import reviewRoutes from '../routes/ReviewRouter.js';
 import OrderRouter from '../routes/OrderRouter.js';
-import Stripe from "stripe";
-import Order from '../model/Order.js';
 import couponRoutes from '../routes/CouponRoutes.js';
+// Model and Utility Imports
+import Order from './model/Order.js'; 
+import Stripe from "stripe";
 
-// db connect
-dbConnect()
-const app = express()
+// --- Database Connection ---
+// This function must be robust and handle connection failures gracefully
+dbConnect();
 
-// Stripe
-const stripe = new Stripe(process.env.STRIPE_KEY)
-const endpointSecret = 'whsec_b39c9fd40a75b4d838c1f44c9ddc514f5d085f89b0bd50fc15c7a65ad665ea79';
+const app = express();
 
+// --- Stripe Setup ---
+// CRITICAL: Initialize Stripe using the secret key from environment variables
+const stripe = new Stripe(process.env.STRIPE_KEY);
+
+// CRITICAL SECURITY FIX: Load the Webhook Secret from environment variables
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET; 
+
+// =========================================================================
+// STRIPE WEBHOOK ROUTE (MUST BE PLACED BEFORE express.json()!)
+// =========================================================================
+// We use express.raw() here to get the raw request body buffer, 
+// which is required by stripe.webhooks.constructEvent for signature verification.
 app.post('/webhook', express.raw({type: 'application/json'}), async(request, response) => {
-  let event;
-  if (endpointSecret) {
-    const signature = request.headers['stripe-signature'];
-    try {
-      event = stripe.webhooks.constructEvent(
-        request.body,
-        signature,
-        endpointSecret
-      );
-      
-      console.log('event', event)
-    } catch (err) {
-      console.log(`Webhook signature verification failed.`, err.message);
-      return response.sendStatus(400);
-    }
+    let event;
 
-  
-    if(event=== 'checkout.session.completed') {
-      const session = event.data.object;
-      const { orderId } =session.metadata;
-      const paymentStatus = session.payment_status;
-      const paymentMethod = session.payment_method_type[0];
-      const totalAmount = session.amount_total;
-      const currency = session.currency;
-      console.log({
-        orderId,
-        paymentStatus,
-        paymentMethod,
-        totalAmount,
-        currency
-      })
-      const order = await Order.findByIdAndUpdate(JSON.parse(orderId), {
-        totalPrice: totalAmount / 100,
-        currency,
-        paymentMethod,
-        paymentStatus
-      }, {
-        new: true,
-      });
-      console.log(order)
-    } 
-    else {
-      return
-    }
+    // Optional safety check for environment variable configuration
+    if (!endpointSecret) {
+        console.error("SERVER ERROR: STRIPE_WEBHOOK_SECRET environment variable is not configured.");
+        return response.sendStatus(500); 
+    }
+    
+    const signature = request.headers['stripe-signature'];
+    
+    try {
+        event = stripe.webhooks.constructEvent(
+            request.body, // raw buffer
+            signature,
+            endpointSecret
+        );
+        
+    } catch (err) {
+        console.log(`❌ Webhook signature verification failed: ${err.message}`);
+        return response.sendStatus(400); // Return 400 immediately on verification failure
+    }
 
-  response.json({received: true});
-}
-}
-)
+    // Handle the event
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        
+        try {
+            const { orderId } = session.metadata;
+            const paymentStatus = session.payment_status;
+            // payment_method_types is an array, take the first one
+            const paymentMethod = session.payment_method_types ? session.payment_method_types[0] : 'card'; 
+            const totalAmount = session.amount_total; // in cents
+            const currency = session.currency;
 
-// pass incoming data
-app.use(express.json());
+            console.log(`✅ Checkout Session Completed! Order ID: ${orderId}`);
 
-// routes
-// app.use('/api/v1/users', userRoutes)
-// app.use('/api/v1/products', productRoutes)
-// app.use('/api/v1/categories', categoriesRoutes)
-// app.use('/api/v1/brands', brandRoutes)
-// app.use('/api/v1/colors', colorRoutes)
-// app.use('/api/v1/reviews', reviewRoutes)
-// app.use('/api/v1/orders', OrderRouter)
-// app.use('/api/v1/coupons', couponRoutes)
+            // Update the order in the database
+            const order = await Order.findByIdAndUpdate(orderId, {
+                totalPrice: totalAmount / 100, // Convert cents back to base currency
+                currency,
+                paymentMethod,
+                paymentStatus,
+                isPaid: true, 
+            }, { new: true });
 
+            console.log('Order successfully updated:', order);
+
+        } catch (dbUpdateError) {
+            console.error('Error updating order in database after successful payment:', dbUpdateError);
+            // Must return 200 OK to Stripe even if DB update failed, so Stripe doesn't retry
+            return response.status(200).json({ received: true, db_error: true }); 
+        }
+    } 
+    
+    // Return a 200 response to Stripe to acknowledge receipt of the event
+    response.status(200).json({ received: true });
+});
+
+// =========================================================================
+// MIDDLEWARE (General)
+// =========================================================================
+
+// This must come AFTER the Stripe webhook. It parses all other incoming JSON bodies.
+app.use(express.json()); 
+
+// --- Standard Routes ---
+// Use app.use('/api/v1', route) if all routes in the router start with a path segment
 app.use('/api/v1', userRoutes)
 app.use('/api/v1', productRoutes)
 app.use('/api/v1', categoriesRoutes)
@@ -93,9 +109,9 @@ app.use('/api/v1', reviewRoutes)
 app.use('/api/v1', OrderRouter)
 app.use('/api/v1', couponRoutes)
 
-// err middleware
+// --- Error Handling Middleware ---
 app.use(notFound)
 app.use(globalErrHandler)
 
 
-export default app
+export default app;

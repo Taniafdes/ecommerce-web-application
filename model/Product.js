@@ -41,7 +41,7 @@ const productSchema = new Schema({
             default: "https://via.placeholder.com/150"
         },
     ],
-   reviews: [
+    reviews: [
     {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Reviews"
@@ -67,23 +67,26 @@ const productSchema = new Schema({
 }
 );
 
+// Virtual field for quantity left
 productSchema.virtual("qtyLeft").get(function() {
-    const product = this;
-    return product.totalQlty - product.totalSold;
+    return this.totalQlty - this.totalSold;
 });
 
+// Virtual field for number of reviews
 productSchema.virtual('getReviews').get(function(){
-    const product = this;
-    return product?.reviews?.length;
+    return this?.reviews?.length;
 })
 
+// Virtual field for average rating
 productSchema.virtual('averageRating').get(function() {
     let totalRating = 0;
-    const product = this;
-    product?.reviews?.forEach((review)=> {
+    this?.reviews?.forEach((review)=> {
         totalRating += review?.rating
     })
-    const averageRating = Number(totalRating/product?.reviews?.length).toFixed(1);
+    // Calculate and format the average rating
+    const averageRating = this?.reviews?.length > 0 ? 
+        Number(totalRating / this.reviews.length).toFixed(1) : 
+        0;
 
     return averageRating;
 })
