@@ -136,14 +136,22 @@ export const getAllProductsCtrl = asyncHandler( async (req, res) => {
 
     // splitting the price range
     if (req.query.price) {
-        const priceQuery = req.query.price.split(" - ")
-
+    const priceQuery = req.query.price.split(" - ");
+    
+    // Check if the price query is correctly formatted (e.g., "10 - 500")
+    if (priceQuery.length === 2) { 
         productQuery = productQuery.find({
-            price: {$gte: priceQuery[0], $lte: priceQuery[1]}
-        })
+            // Ensure the prices are converted to a comparable format (e.g., Number) 
+            // if they are stored as Numbers in the database.
+            price: {$gte: Number(priceQuery[0]), $lte: Number(priceQuery[1])}
+        });
         console.log('price', priceQuery);
-        
+    } else {
+        // Log a warning or choose to ignore the malformed query
+        console.warn('Malformed price query received:', req.query.price);
+        // You could also throw an error here, but ignoring the filter is safer.
     }
+}
 
     // pagination
 
