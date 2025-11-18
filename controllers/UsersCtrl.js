@@ -11,6 +11,7 @@ import { verifyToken } from "../utils/verifyToken.js";
 
 export const registerUserCtrl = asyncHandler(
      async (req, res) => {
+        console.log("📥 Register Body:", req.body);
     
     const { fullname, email, password} = req.body;
     const userExists = await User.findOne({ email })
@@ -30,6 +31,7 @@ export const registerUserCtrl = asyncHandler(
         fullname,
         email,
         password: hashedPassword,
+        // isAdmin: req.body.isAdmin || false,
     });
     res.status(201).json({
         status: "success",
@@ -45,22 +47,24 @@ export const registerUserCtrl = asyncHandler(
 // @route POST /api/v1/users/login
 // @access private/admin
 
-export const loginUserCtrl = asyncHandler( async (req, res) => {
-    const { email, password} = req.body;
-    const checkEmail = await User.findOne({email})
+export const loginUserCtrl = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const checkEmail = await User.findOne({ email });
 
-    if(checkEmail && await bcrypt.compare(password, checkEmail?.password)) {
-        res.json({
-            status: "Success",
-            msg: "User Logged in successfully",
-            checkEmail,
-            token: generateToken(checkEmail?._id)
+    if (checkEmail && await bcrypt.compare(password, checkEmail.password)) {
+        res.status(200).json({
+            status: "success",
+            message: "User Logged in successfully",
+            user: checkEmail,
+            token: generateToken(checkEmail._id),
         });
     } else {
-           throw new Error('Invalid User')
+        res.status(401).json({
+            status: "error",
+            message: "Invalid email or password"
+        });
     }
-}
-)
+});
 
 
 // @desc get user

@@ -6,7 +6,6 @@ import isAdmin from '../middlewares/isAdmin.js';
 
 const productRoutes = Router();
 productRoutes.post("/products", isLoggedIn, isAdmin, upload.single("file"), newProductCtrl)
-
 productRoutes.get("/products", getAllProductsCtrl)
 productRoutes.get("/products/:id", getSingleProductCtrl) // Use /products/:id
 productRoutes.put("/products/update/:id", isLoggedIn, isAdmin, updateProductCtrl)

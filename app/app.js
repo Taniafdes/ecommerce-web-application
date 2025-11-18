@@ -11,10 +11,12 @@ import OrderRouter from '../routes/OrderRouter.js';
 import Stripe from "stripe";
 import Order from '../model/Order.js';
 import couponRoutes from '../routes/CouponRoutes.js';
-
+import cors from 'cors';
 // db connect
 dbConnect()
 const app = express()
+
+app.use(cors());
 
 // Stripe
 const stripe = new Stripe(process.env.STRIPE_KEY)
@@ -74,6 +76,8 @@ app.post('/webhook', express.raw({type: 'application/json'}), async(request, res
 // pass incoming data
 app.use(express.json());
 
+
+
 // routes
 // app.use('/api/v1/users', userRoutes)
 // app.use('/api/v1/products', productRoutes)
@@ -84,7 +88,7 @@ app.use(express.json());
 // app.use('/api/v1/orders', OrderRouter)
 // app.use('/api/v1/coupons', couponRoutes)
 
-app.use('/api/v1', userRoutes)
+app.use('/api/v1/users', userRoutes)
 app.use('/api/v1', productRoutes)
 app.use('/api/v1', categoriesRoutes)
 app.use('/api/v1', brandRoutes)

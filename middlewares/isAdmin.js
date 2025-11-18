@@ -1,13 +1,17 @@
-import User from "../model/User.js"
+import User from "../model/User.js";
 
 const isAdmin = async (req, res, next) => {
-    const user= await User.findById(req.userAuthId) 
-    if(user.isAdmin) {
-        next()
-    }
-    else {
-        next(new Error('Access Denied Admin Only'))
-    }
-}
+  try {
+    const user = await User.findById(req.userAuthId);
 
-export default isAdmin
+    if (user && user.isAdmin) {
+      next();
+    } else {
+      res.status(403).json({ message: "Access Denied: Admin Only" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export default isAdmin;

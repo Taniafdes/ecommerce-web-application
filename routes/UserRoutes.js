@@ -4,11 +4,11 @@ import { isLoggedIn } from '../middlewares/isLoggedIn.js';
 
 const userRoutes = express.Router()
 
-userRoutes.post('/users/register', registerUserCtrl)
+userRoutes.post('/register', registerUserCtrl)
 
-userRoutes.post('/users/login', loginUserCtrl)
+userRoutes.post('/login', loginUserCtrl)
 
-userRoutes.get('/users/profile', isLoggedIn, getProfileCtrl)
+userRoutes.get('/profile', isLoggedIn, getProfileCtrl)
 
-userRoutes.put('/users/update/shipping', isLoggedIn, updateShippingAddressCtrl)
+userRoutes.put('/update/shipping', isLoggedIn, updateShippingAddressCtrl)
 export default userRoutes
